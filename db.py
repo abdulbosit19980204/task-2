@@ -20,33 +20,47 @@ try:
         # 2. Jadvallar ro'yxatini olish
         cursor.execute("SHOW TABLES;")
         tables = cursor.fetchall()
-
-        #
+        
+        # Jadvallar haqida ma'lumot yig'ish uchun ro'yxat
+        table_counts = []
+        
+        print("Jadvallardagi qatorlar soni hisoblanmoqda, kuting...")
+        
+        # Har bir jadval uchun COUNT(*) so'rovini bajarish
+        for table in tables:
+            table_name = table[0]
+            
+            # Xavfsiz dinamik SQL so'rovi (Jadval nomini f-string orqali qo'shamiz)
+            count_query = f"SELECT COUNT(*) FROM `{table_name}`;"
+            cursor.execute(count_query)
+            
+            row_count = cursor.fetchone()[0]
+            table_counts.append((table_name, row_count))
         
         # --- FAYLGA YOZISH BO'LIMI ---
-        # 'w' rejimi faylni yangidan ochadi (agar bor bo'lsa ichini tozalaydi)
-        # encoding='utf-8' o'zbekcha yoki maxsus belgilarni to'g'ri yozish uchun shart
-        with open("db_report.txt", "w", encoding="utf-8") as file:
+        with open("db_report_with_counts.txt", "w", encoding="utf-8") as file:
             # Fayl sarlavhasi
-            file.write("=========================================\n")
-            file.write("       MARIADB MA'LUMOTLAR BAZASI HISOBOTI\n")
-            file.write("=========================================\n\n")
+            file.write("==================================================\n")
+            file.write("       MARIADB MA'LUMOTLAR BAZASI TO'LIQ HISOBOTI\n")
+            file.write("==================================================\n\n")
             
             # Tizim ma'lumotlari
             file.write(f"Ulanish holati: Muvaffaqiyatli\n")
             file.write(f"MariaDB Versiyasi: {db_version}\n")
             file.write(f"Jami jadvallar soni: {len(tables)}\n\n")
             
-            # Jadvallar ro'yxati
-            file.write("Jadvallar ro'yxati:\n")
-            file.write("-----------------------------------------\n")
-            for index, table in enumerate(tables, start=1):
-                file.write(f"{index}. {table[0]}\n")
+            # Jadvallar va qatorlar soni ro'yxati (Chiroyli formatda)
+            file.write(f"{'№':<4} | {'Jadval nomi':<45} | {'Qatorlar soni':<15}\n")
+            file.write("-" * 72 + "\n")
             
-            file.write("-----------------------------------------\n")
+            for index, (name, count) in enumerate(table_counts, start=1):
+                # {name:<45} matnni chapdan 45 ta belgi joyga chiroyli tekislab beradi
+                file.write(f"{index:<4} | {name:<45} | {count:<15,}\n")
+            
+            file.write("-" * 72 + "\n")
             file.write("Hisobot yakunlandi.\n")
             
-        print("Hisobot 'db_report.txt' fayliga muvaffaqiyatli yozildi!")
+        print("Kengaytirilgan hisobot 'db_report_with_counts.txt' fayliga yozildi!")
 
 except Exception as e:
     print(f"Xatolik yuz berdi: {e}")

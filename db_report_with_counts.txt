@@ -1,0 +1,26 @@
+==================================================
+       MARIADB MA'LUMOTLAR BAZASI TO'LIQ HISOBOTI
+==================================================
+
+Ulanish holati: Muvaffaqiyatli
+MariaDB Versiyasi: 10.11.14-MariaDB-0ubuntu0.24.04.1
+Jami jadvallar soni: 14
+
+№    | Jadval nomi                                   | Qatorlar soni  
+------------------------------------------------------------------------
+1    | aveva_historian_db_sqlt_data_1_2026_06        | 480            
+2    | aveva_historian_db_sqlth_drv                  | 2              
+3    | aveva_historian_db_sqlth_scinfo               | 3              
+4    | aveva_historian_db_sqlth_te                   | 10             
+5    | customer_updates                              | 5              
+6    | customers                                     | 8              
+7    | order_items                                   | 8              
+8    | orders                                        | 10             
+9    | production_historian_sqlt_data_1_2026_06      | 1,440          
+10   | production_historian_sqlth_drv                | 4              
+11   | production_historian_sqlth_scinfo             | 6              
+12   | production_historian_sqlth_te                 | 20             
+13   | products                                      | 6              
+14   | timeseries                                    | 8              
+------------------------------------------------------------------------
+Hisobot yakunlandi.
