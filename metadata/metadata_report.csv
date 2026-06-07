@@ -1,0 +1,6 @@
+Table Name,Record Count,Column Count,Load Time,Load Status,Error Message
+customers,8,6,2026-06-07 20:09:43,SUCCESS,
+orders,10,5,2026-06-07 20:09:43,SUCCESS,
+products,6,5,2026-06-07 20:09:43,SUCCESS,
+order_items,8,5,2026-06-07 20:09:43,SUCCESS,
+customer_updates,5,4,2026-06-07 20:09:44,SUCCESS,
