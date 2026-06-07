@@ -1,0 +1,26 @@
+=========================================
+       MARIADB MA'LUMOTLAR BAZASI HISOBOTI
+=========================================
+
+Ulanish holati: Muvaffaqiyatli
+MariaDB Versiyasi: 10.11.14-MariaDB-0ubuntu0.24.04.1
+Jami jadvallar soni: 14
+
+Jadvallar ro'yxati:
+-----------------------------------------
+1. aveva_historian_db_sqlt_data_1_2026_06
+2. aveva_historian_db_sqlth_drv
+3. aveva_historian_db_sqlth_scinfo
+4. aveva_historian_db_sqlth_te
+5. customer_updates
+6. customers
+7. order_items
+8. orders
+9. production_historian_sqlt_data_1_2026_06
+10. production_historian_sqlth_drv
+11. production_historian_sqlth_scinfo
+12. production_historian_sqlth_te
+13. products
+14. timeseries
+-----------------------------------------
+Hisobot yakunlandi.
