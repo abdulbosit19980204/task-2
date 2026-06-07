@@ -1,0 +1,195 @@
+=================================================================
+         MARIADB BAZASI METAMA'LUMOTLARI (SCHEMA) HISOBOTI
+=================================================================
+
+Ma'lumotlar bazasi: ignition
+MariaDB Versiyasi:  10.11.14-MariaDB-0ubuntu0.24.04.1
+Jami jadvallar:     14 ta
+=================================================================
+
+1. JADVAL NOMI: aveva_historian_db_sqlth_drv
+   Qatorlar soni (Row Count): 2
+   Ustunlar strukturasi:
+      Ustun nomi                  | Ma'lumot turi        | Primary Key 
+   --------------------------------------------------------------------
+      id                          | int(10) unsigned     | Ha (PK)     
+      drvname                     | varchar(100)         | Yo'q        
+      provider                    | varchar(100)         | Yo'q        
+      enabled                     | tinyint(1)           | Yo'q        
+
+=================================================================
+
+2. JADVAL NOMI: aveva_historian_db_sqlth_scinfo
+   Qatorlar soni (Row Count): 3
+   Ustunlar strukturasi:
+      Ustun nomi                  | Ma'lumot turi        | Primary Key 
+   --------------------------------------------------------------------
+      id                          | int(10) unsigned     | Ha (PK)     
+      scname                      | varchar(100)         | Yo'q        
+      rate                        | int(11)              | Yo'q        
+      driver_id                   | int(10) unsigned     | Yo'q        
+
+=================================================================
+
+3. JADVAL NOMI: aveva_historian_db_sqlth_te
+   Qatorlar soni (Row Count): 10
+   Ustunlar strukturasi:
+      Ustun nomi                  | Ma'lumot turi        | Primary Key 
+   --------------------------------------------------------------------
+      id                          | int(10) unsigned     | Ha (PK)     
+      tagpath                     | varchar(255)         | Yo'q        
+      dtype                       | int(11)              | Yo'q        
+      querymode                   | int(11)              | Yo'q        
+      active                      | tinyint(1)           | Yo'q        
+      created                     | datetime             | Yo'q        
+      retired                     | datetime             | Yo'q        
+
+=================================================================
+
+4. JADVAL NOMI: aveva_historian_db_sqlt_data_1_2026_06
+   Qatorlar soni (Row Count): 480
+   Ustunlar strukturasi:
+      Ustun nomi                  | Ma'lumot turi        | Primary Key 
+   --------------------------------------------------------------------
+      id                          | bigint(20) unsigned  | Ha (PK)     
+      tagid                       | int(10) unsigned     | Yo'q        
+      t_stamp                     | datetime             | Yo'q        
+      floatvalue                  | double               | Yo'q        
+      intvalue                    | bigint(20)           | Yo'q        
+      strvalue                    | varchar(255)         | Yo'q        
+      quality                     | int(11)              | Yo'q        
+
+=================================================================
+
+5. JADVAL NOMI: customers
+   Qatorlar soni (Row Count): 8
+   Ustunlar strukturasi:
+      Ustun nomi                  | Ma'lumot turi        | Primary Key 
+   --------------------------------------------------------------------
+      customer_id                 | int(11)              | Ha (PK)     
+      first_name                  | varchar(100)         | Yo'q        
+      last_name                   | varchar(100)         | Yo'q        
+      email                       | varchar(255)         | Yo'q        
+      created_at                  | datetime             | Yo'q        
+      updated_at                  | datetime             | Yo'q        
+
+=================================================================
+
+6. JADVAL NOMI: customer_updates
+   Qatorlar soni (Row Count): 5
+   Ustunlar strukturasi:
+      Ustun nomi                  | Ma'lumot turi        | Primary Key 
+   --------------------------------------------------------------------
+      update_id                   | int(11)              | Ha (PK)     
+      customer_id                 | int(11)              | Yo'q        
+      status                      | varchar(50)          | Yo'q        
+      updated_at                  | datetime             | Yo'q        
+
+=================================================================
+
+7. JADVAL NOMI: orders
+   Qatorlar soni (Row Count): 10
+   Ustunlar strukturasi:
+      Ustun nomi                  | Ma'lumot turi        | Primary Key 
+   --------------------------------------------------------------------
+      order_id                    | int(11)              | Ha (PK)     
+      customer_id                 | int(11)              | Yo'q        
+      order_amount                | decimal(12,2)        | Yo'q        
+      order_date                  | datetime             | Yo'q        
+      updated_at                  | datetime             | Yo'q        
+
+=================================================================
+
+8. JADVAL NOMI: order_items
+   Qatorlar soni (Row Count): 8
+   Ustunlar strukturasi:
+      Ustun nomi                  | Ma'lumot turi        | Primary Key 
+   --------------------------------------------------------------------
+      order_item_id               | int(11)              | Ha (PK)     
+      order_id                    | int(11)              | Yo'q        
+      product_id                  | int(11)              | Yo'q        
+      quantity                    | int(11)              | Yo'q        
+      item_total                  | decimal(12,2)        | Yo'q        
+
+=================================================================
+
+9. JADVAL NOMI: production_historian_sqlth_drv
+   Qatorlar soni (Row Count): 4
+   Ustunlar strukturasi:
+      Ustun nomi                  | Ma'lumot turi        | Primary Key 
+   --------------------------------------------------------------------
+      id                          | int(10) unsigned     | Ha (PK)     
+      drvname                     | varchar(100)         | Yo'q        
+      provider                    | varchar(100)         | Yo'q        
+      enabled                     | tinyint(1)           | Yo'q        
+
+=================================================================
+
+10. JADVAL NOMI: production_historian_sqlth_scinfo
+   Qatorlar soni (Row Count): 6
+   Ustunlar strukturasi:
+      Ustun nomi                  | Ma'lumot turi        | Primary Key 
+   --------------------------------------------------------------------
+      id                          | int(10) unsigned     | Ha (PK)     
+      scname                      | varchar(100)         | Yo'q        
+      rate                        | int(11)              | Yo'q        
+      driver_id                   | int(10) unsigned     | Yo'q        
+
+=================================================================
+
+11. JADVAL NOMI: production_historian_sqlth_te
+   Qatorlar soni (Row Count): 20
+   Ustunlar strukturasi:
+      Ustun nomi                  | Ma'lumot turi        | Primary Key 
+   --------------------------------------------------------------------
+      id                          | int(10) unsigned     | Ha (PK)     
+      tagpath                     | varchar(255)         | Yo'q        
+      dtype                       | int(11)              | Yo'q        
+      querymode                   | int(11)              | Yo'q        
+      active                      | tinyint(1)           | Yo'q        
+      created                     | datetime             | Yo'q        
+      retired                     | datetime             | Yo'q        
+
+=================================================================
+
+12. JADVAL NOMI: production_historian_sqlt_data_1_2026_06
+   Qatorlar soni (Row Count): 1,440
+   Ustunlar strukturasi:
+      Ustun nomi                  | Ma'lumot turi        | Primary Key 
+   --------------------------------------------------------------------
+      id                          | bigint(20) unsigned  | Ha (PK)     
+      tagid                       | int(10) unsigned     | Yo'q        
+      t_stamp                     | datetime             | Yo'q        
+      floatvalue                  | double               | Yo'q        
+      intvalue                    | bigint(20)           | Yo'q        
+      strvalue                    | varchar(255)         | Yo'q        
+      quality                     | int(11)              | Yo'q        
+
+=================================================================
+
+13. JADVAL NOMI: products
+   Qatorlar soni (Row Count): 6
+   Ustunlar strukturasi:
+      Ustun nomi                  | Ma'lumot turi        | Primary Key 
+   --------------------------------------------------------------------
+      product_id                  | int(11)              | Ha (PK)     
+      product_name                | varchar(255)         | Yo'q        
+      category                    | varchar(100)         | Yo'q        
+      price                       | decimal(10,2)        | Yo'q        
+      updated_at                  | datetime             | Yo'q        
+
+=================================================================
+
+14. JADVAL NOMI: timeseries
+   Qatorlar soni (Row Count): 8
+   Ustunlar strukturasi:
+      Ustun nomi                  | Ma'lumot turi        | Primary Key 
+   --------------------------------------------------------------------
+      id                          | bigint(20)           | Ha (PK)     
+      site_id                     | int(11)              | Yo'q        
+      tag_name                    | varchar(255)         | Yo'q        
+      timestamp                   | datetime             | Yo'q        
+      value                       | decimal(12,4)        | Yo'q        
+
+=================================================================
+
