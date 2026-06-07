@@ -1,0 +1,63 @@
+[
+    {
+        "table_name": "customers",
+        "record_count": 8,
+        "extraction_timestamp": "2026-06-07 19:04:37",
+        "load_status": "SUCCESS",
+        "error_message": null,
+        "schema_info": {
+            "customer_id": "int64",
+            "first_name": "str",
+            "last_name": "str",
+            "email": "str",
+            "created_at": "str",
+            "updated_at": "str",
+            "ingested_at": "datetime64[us]"
+        }
+    },
+    {
+        "table_name": "orders",
+        "record_count": 10,
+        "extraction_timestamp": "2026-06-07 19:04:37",
+        "load_status": "SUCCESS",
+        "error_message": null,
+        "schema_info": {
+            "order_id": "int64",
+            "customer_id": "int64",
+            "order_amount": "float64",
+            "order_date": "str",
+            "updated_at": "str",
+            "ingested_at": "datetime64[us]"
+        }
+    },
+    {
+        "table_name": "products",
+        "record_count": 6,
+        "extraction_timestamp": "2026-06-07 19:04:38",
+        "load_status": "SUCCESS",
+        "error_message": null,
+        "schema_info": {
+            "product_id": "int64",
+            "product_name": "str",
+            "category": "str",
+            "price": "float64",
+            "updated_at": "str",
+            "ingested_at": "datetime64[us]"
+        }
+    },
+    {
+        "table_name": "order_items",
+        "record_count": 8,
+        "extraction_timestamp": "2026-06-07 19:04:38",
+        "load_status": "SUCCESS",
+        "error_message": null,
+        "schema_info": {
+            "order_item_id": "int64",
+            "order_id": "int64",
+            "product_id": "int64",
+            "quantity": "int64",
+            "item_total": "float64",
+            "ingested_at": "datetime64[us]"
+        }
+    }
+]

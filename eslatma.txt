@@ -1,0 +1,10 @@
+# Windows da spark ni ishlatish uchun bir nechta sozlamlarni tog'rilash kerak
+shuning uchun pandas jaydebeapi pyarrow kutub xonalardan foydalanib proyektni run qilish 
+mumkin! 
+
+HADOOP_HOME, SPARK_HOME larni path larini to'g'rilash kerak
+winutils.exe  ni C:\hadoop\bin ichiga joylashtirilgan bolishi kerak
+bu fayllarga vaqtinchalik ruxsat berish uchun ishlatiladi! 
+
+Linux dagi chmod ni alternative 
+

@@ -1,92 +1,101 @@
-import findspark
-findspark.init()
-
 import os
 import json
+import jaydebeapi
+import pandas as pd
 from datetime import datetime
-from pyspark.sql import SparkSession
-from pyspark.sql.functions import current_timestamp, lit
 
-# 1. Spark Session-ni JDBC drayver bilan ishga tushirish
-# 'mariadb-java-client-3.5.8.jar' fayli kod bilan bitta papkada bo'lishi kerak
-spark = SparkSession.builder \
-    .appName("MariaDB-to-Bronze-Ingestion") \
-    .config("spark.jars", "mariadb-java-client-3.5.8.jar") \
-    .getOrCreate()
+# 1. JDBC va Drayver sozlamalari
+server_ip = "5.189.143.4"
+port = "3306"
+database = "ignition"
+username = "ignition_user"
+password = "demo123"
 
-# 2. MariaDB JDBC ulanish sozlamalari
-jdbc_url = "jdbc:mariadb://5.189.143.4:3306/ignition?useSSL=false"
-connection_properties = {
-    "user": "ignition_user",
-    "password": "demo123",
-    "driver": "org.mariadb.jdbc.Driver"
-}
+# JDBC Connection URL
+jdbc_url = f"jdbc:mariadb://{server_ip}:{port}/{database}?useSSL=false"
+driver_class = "org.mariadb.jdbc.Driver"
+jar_path = "./mariadb-java-client-3.5.8.jar"  # Siz yuklab olgan fayl nomi
 
-# Biznes jadvallari ro'yxati (Topshiriq talabi bo'yicha)
+# Biznes jadvallari
 business_tables = ["customers", "orders", "products", "order_items"]
 
-# Bronze qatlam joylashadigan papka (Lokal)
+# Bronze qatlam joylashadigan papka
 bronze_base_path = "./bronze"
 os.makedirs(bronze_base_path, exist_ok=True)
 
-# Yuklash natijalari (Metadata) uchun ro'yxat
 ingestion_logs = []
 
-print("=== BRONZE QATLAMGA MA'LUMOTLARNI YUKLASH BOSHLANDI ===")
+print("=== BRONZE QATLAMGA (JDBC + PANDAS) YUKLASH BOSHLANDI ===")
 
-# 3. Jadvallarni sikl (loop) orqali o'qish va yozish
-for table in business_tables:
-    extraction_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    print(f"\n[MUTAAXASSIS] {table} jadvali o'qilmoqda...")
-    
-    try:
-        # JDBC orqali ma'lumotni Spark DataFrame-ga o'qish
-        df = spark.read.jdbc(url=jdbc_url, table=table, properties=connection_properties)
-        
-        # Data Engineer amaliyoti: Ma'lumotga yuklangan vaqtini (Ingestion Timestamp) qo'shish
-        df_with_meta = df.withColumn("ingested_at", current_timestamp())
-        
-        # Sxema (Schema) ma'lumotini matn ko'rinishida olish
-        schema_json = df.schema.json()
-        
-        # Qatorlar sonini hisoblash
-        record_count = df.count()
-        
-        # 4. Bronze formatda (Parquet) saqlash
-        # Hamma jadval o'z papkasiga yoziladi (Masalan: bronze/customers)
-        output_path = os.path.join(bronze_base_path, table)
-        
-        # 'overwrite' - agar papka bo'lsa o'chirib qayta yozadi
-        df_with_meta.write.mode("overwrite").parquet(output_path)
-        
-        load_status = "SUCCESS"
-        error_message = None
-        print(f"[MUVAFFIQIYAT] {table} muvaffaqiyatli yuklandi. Qatorlar: {record_count}")
+# 2. JDBC orqali ulanishni ochish
+try:
+    conn = jaydebeapi.connect(
+        driver_class,
+        jdbc_url,
+        [username, password],
+        jar_path
+    )
+    print("[MUVAFFAQIYAT] MariaDB-ga JDBC orqali ulanish o'rnatildi.\n")
 
-    except Exception as e:
-        load_status = "FAILED"
-        record_count = 0
-        schema_json = None
-        error_message = str(e)
-        print(f"[XATOLIK] {table} jadvalida muammo: {error_message}")
+    # 3. Jadvallarni sikl orqali o'qish
+    for table in business_tables:
+        extraction_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        print(f"[JARAYON] {table} jadvali yuklanmoqda...")
+        
+        try:
+            # SQL so'rovi orqali ma'lumotni o'qish
+            query = f"SELECT * FROM `{table}`"
+            df = pd.read_sql(query, conn)
+            
+            # Data Engineer amaliyoti: Yuklangan vaqtini qo'shish (Ingestion Timestamp)
+            df["ingested_at"] = pd.Timestamp.now()
+            
+            # Sxema (Schema) ma'lumotini olish (Ustun nomi va turi)
+            schema_info = df.dtypes.astype(str).to_dict()
+            
+            # Qatorlar soni
+            record_count = len(df)
+            
+            # 4. Bronze formatda (Parquet) saqlash
+            output_path = os.path.join(bronze_base_path, table)
+            os.makedirs(output_path, exist_ok=True)
+            
+            # Parquet fayl ko'rinishida yozish
+            df.to_parquet(os.path.join(output_path, f"{table}.parquet"), index=False)
+            
+            load_status = "SUCCESS"
+            error_message = None
+            print(f"[OK] {table} muvaffaqiyatli yozildi. Qatorlar: {record_count}")
 
-    # Log ma'lumotlarini yig'ish
-    ingestion_logs.append({
-        "table_name": table,
-        "record_count": record_count,
-        "extraction_timestamp": extraction_time,
-        "load_status": load_status,
-        "error_message": error_message,
-        "schema": json.loads(schema_json) if schema_json else None
-    })
+        except Exception as table_err:
+            load_status = "FAILED"
+            record_count = 0
+            schema_info = None
+            error_message = str(table_err)
+            print(f"[XATOLIK] {table} jadvalida muammo: {error_message}")
 
-# 5. Output / Metadata hisobotini saqlash (JSON formatida log yuritish)
+        # Log yig'ish
+        ingestion_logs.append({
+            "table_name": table,
+            "record_count": record_count,
+            "extraction_timestamp": extraction_time,
+            "load_status": load_status,
+            "error_message": error_message,
+            "schema_info": schema_info
+        })
+
+except Exception as conn_err:
+    print(f"[KRITIK XATO] JDBC ulanishida muammo: {conn_err}")
+
+finally:
+    # Ulanishni yopish
+    if 'conn' in locals():
+        conn.close()
+
+# 5. Output JSON Log hisobotini saqlash
 log_file_path = "./bronze_ingestion_summary.json"
 with open(log_file_path, "w", encoding="utf-8") as log_file:
     json.dump(ingestion_logs, log_file, indent=4, ensure_ascii=False)
 
 print("\n=== JARAYON YAKUNLANDI ===")
-print(f"Barcha loglar va sxema ma'lumotlari '{log_file_path}' fayliga yozildi.")
-
-# Spark sessiyani yopish
-spark.stop()
+print(f"Barcha loglar va sxemalar '{log_file_path}' fayliga yozildi.")

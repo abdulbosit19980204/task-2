@@ -1,3 +1,12 @@
 findspark==2.0.1
+JayDeBeApi==1.2.3
+jpype1==1.7.1
+numpy==2.4.6
+packaging==26.2
+pandas==3.0.3
 py4j==0.10.9.9
+pyarrow==24.0.0
 pyspark==4.1.2
+python-dateutil==2.9.0.post0
+six==1.17.0
+tzdata==2026.2
