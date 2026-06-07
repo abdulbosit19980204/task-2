@@ -11,91 +11,84 @@ database = "ignition"
 username = "ignition_user"
 password = "demo123"
 
-# JDBC Connection URL
 jdbc_url = f"jdbc:mariadb://{server_ip}:{port}/{database}?useSSL=false"
 driver_class = "org.mariadb.jdbc.Driver"
-jar_path = "./mariadb-java-client-3.5.8.jar"  # Siz yuklab olgan fayl nomi
+jar_path = "./mariadb-java-client-3.5.8.jar"
 
 # Biznes jadvallari
-business_tables = ["customers", "orders", "products", "order_items"]
+business_tables = ["customers", "orders", "products", "order_items", "customer_updates"]
 
 # Bronze qatlam joylashadigan papka
 bronze_base_path = "./bronze"
 os.makedirs(bronze_base_path, exist_ok=True)
 
-ingestion_logs = []
+# Phase 3: Metadata ro'yxati
+metadata_records = []
 
-print("=== BRONZE QATLAMGA (JDBC + PANDAS) YUKLASH BOSHLANDI ===")
+print("=== BRONZE INGESTION & METADATA REPORTING BOSHLANDI ===")
 
-# 2. JDBC orqali ulanishni ochish
 try:
-    conn = jaydebeapi.connect(
-        driver_class,
-        jdbc_url,
-        [username, password],
-        jar_path
-    )
-    print("[MUVAFFAQIYAT] MariaDB-ga JDBC orqali ulanish o'rnatildi.\n")
+    conn = jaydebeapi.connect(driver_class, jdbc_url, [username, password], jar_path)
+    print("[MUVAFFAQIYAT] MariaDB-ga JDBC ulanish o'rnatildi.\n")
 
-    # 3. Jadvallarni sikl orqali o'qish
     for table in business_tables:
         extraction_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         print(f"[JARAYON] {table} jadvali yuklanmoqda...")
         
         try:
-            # SQL so'rovi orqali ma'lumotni o'qish
+            # Ma'lumotni o'qish
             query = f"SELECT * FROM `{table}`"
             df = pd.read_sql(query, conn)
             
-            # Data Engineer amaliyoti: Yuklangan vaqtini qo'shish (Ingestion Timestamp)
-            df["ingested_at"] = pd.Timestamp.now()
-            
-            # Sxema (Schema) ma'lumotini olish (Ustun nomi va turi)
-            schema_info = df.dtypes.astype(str).to_dict()
-            
-            # Qatorlar soni
+            # Metadata hisoblash (Phase 3 uchun yangi ustunlar)
             record_count = len(df)
-            
-            # 4. Bronze formatda (Parquet) saqlash
-            output_path = os.path.join(bronze_base_path, table)
-            os.makedirs(output_path, exist_ok=True)
-            
-            # Parquet fayl ko'rinishida yozish
-            df.to_parquet(os.path.join(output_path, f"{table}.parquet"), index=False)
-            
+            column_count = len(df.columns)  # Ustunlar sonini aniqlash (YANGI)
             load_status = "SUCCESS"
             error_message = None
-            print(f"[OK] {table} muvaffaqiyatli yozildi. Qatorlar: {record_count}")
+            
+            # Bronze qatlamga yozish
+            df["ingested_at"] = pd.Timestamp.now()
+            output_path = os.path.join(bronze_base_path, table)
+            os.makedirs(output_path, exist_ok=True)
+            df.to_parquet(os.path.join(output_path, f"{table}.parquet"), index=False)
+            
+            print(f"[OK] {table} yozildi. Qatorlar: {record_count}, Ustunlar: {column_count}")
 
         except Exception as table_err:
             load_status = "FAILED"
             record_count = 0
-            schema_info = None
+            column_count = 0
             error_message = str(table_err)
             print(f"[XATOLIK] {table} jadvalida muammo: {error_message}")
 
-        # Log yig'ish
-        ingestion_logs.append({
-            "table_name": table,
-            "record_count": record_count,
-            "extraction_timestamp": extraction_time,
-            "load_status": load_status,
-            "error_message": error_message,
-            "schema_info": schema_info
+        # Phase 3 talablariga mos Metric ma'lumotlarini yig'ish
+        metadata_records.append({
+            "Table Name": table,
+            "Record Count": record_count,
+            "Column Count": column_count,
+            "Load Time": extraction_time,
+            "Load Status": load_status,
+            "Error Message": error_message
         })
 
 except Exception as conn_err:
     print(f"[KRITIK XATO] JDBC ulanishida muammo: {conn_err}")
 
 finally:
-    # Ulanishni yopish
     if 'conn' in locals():
         conn.close()
 
-# 5. Output JSON Log hisobotini saqlash
-log_file_path = "./bronze_ingestion_summary.json"
-with open(log_file_path, "w", encoding="utf-8") as log_file:
-    json.dump(ingestion_logs, log_file, indent=4, ensure_ascii=False)
+# --- PHASE 3: METADATA EXPORT BO'LIMI ---
+# 1. JSON formatida saqlash
+json_log_path = "./metadata_report.json"
+with open(json_log_path, "w", encoding="utf-8") as json_file:
+    json.dump(metadata_records, json_file, indent=4, ensure_ascii=False)
 
-print("\n=== JARAYON YAKUNLANDI ===")
-print(f"Barcha loglar va sxemalar '{log_file_path}' fayliga yozildi.")
+# 2. CSV formatida saqlash (YANGI)
+csv_log_path = "./metadata_report.csv"
+metadata_df = pd.DataFrame(metadata_records)
+metadata_df.to_csv(csv_log_path, index=False, encoding="utf-8")
+
+print("\n=== PHASE 3: METADATA REPORTING YAKUNLANDI ===")
+print(f"-> JSON hisobot: {json_log_path}")
+print(f"-> CSV hisobot: {csv_log_path}")
